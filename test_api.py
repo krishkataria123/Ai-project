@@ -1,7 +1,7 @@
 import urllib.request
 import json
 
-url = "http://localhost:5000/predict"
+url = "https://ai-project-dh8a.onrender.com"
 data = {
     "CPU Usage (%)": 50.0,
     "Memory Usage (%)": 40.0,
