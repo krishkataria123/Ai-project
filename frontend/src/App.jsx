@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import './App.css'
 
-const API_BASE = 'http://localhost:5000'
+const API_BASE = 'https://ai-project-dh8a.onrender.com'
 
 // ── Field configuration ──────────────────────────────────────────────────────
 const FIELDS = [
@@ -35,7 +35,7 @@ export default function App() {
   useEffect(() => {
     const check = async () => {
       try {
-        const r = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(3000) })
+        const r = await fetch(`${API_BASE}/health`)
         const data = await r.json()
         setApiStatus(data.model_loaded ? 'online' : 'offline')
       } catch {
