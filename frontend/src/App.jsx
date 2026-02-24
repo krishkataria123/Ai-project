@@ -1,32 +1,32 @@
 import { useState, useEffect } from "react";
-import "./index.css";
+import "./App.css";
 
 const API_BASE = "https://ai-project-dh8a.onrender.com";
 
 const FIELDS = [
-  { key: "CPU Usage (%)", label: "CPU Usage (%)" },
-  { key: "Memory Usage (%)", label: "Memory Usage (%)" },
-  { key: "Clock Speed (GHz)", label: "Clock Speed (GHz)" },
-  { key: "Ambient Temperature (°C)", label: "Ambient Temperature (°C)" },
-  { key: "Voltage (V)", label: "Voltage (V)" },
-  { key: "Current Load (A)", label: "Current Load (A)" },
-  { key: "Cache Miss Rate (%)", label: "Cache Miss Rate (%)" },
-  { key: "Power Consumption (W)", label: "Power Consumption (W)" },
+  { key: "CPU Usage (%)", label: "CPU Usage", placeholder: "e.g. 68" },
+  { key: "Memory Usage (%)", label: "Memory Usage", placeholder: "e.g. 67" },
+  { key: "Clock Speed (GHz)", label: "Clock Speed", placeholder: "e.g. 3.5" },
+  { key: "Ambient Temperature (°C)", label: "Ambient Temp", placeholder: "e.g. 25" },
+  { key: "Voltage (V)", label: "Voltage", placeholder: "e.g. 1.2" },
+  { key: "Current Load (A)", label: "Current Load", placeholder: "e.g. 10" },
+  { key: "Cache Miss Rate (%)", label: "Cache Miss Rate", placeholder: "e.g. 5" },
+  { key: "Power Consumption (W)", label: "Power Consumption", placeholder: "e.g. 80" },
 ];
 
 const initialForm = Object.fromEntries(FIELDS.map(f => [f.key, ""]));
 
 function getTempStatus(temp) {
-  if (temp < 60) return { label: "Normal", color: "green" };
-  if (temp < 85) return { label: "Warm", color: "orange" };
-  return { label: "Critical", color: "red" };
+  if (temp < 60) return { label: "Normal", color: "#16a34a" };
+  if (temp < 85) return { label: "Warm", color: "#f59e0b" };
+  return { label: "Critical", color: "#dc2626" };
 }
 
 export default function App() {
   const [form, setForm] = useState(initialForm);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [apiStatus, setApiStatus] = useState("Checking...");
+  const [apiStatus, setApiStatus] = useState("Checking");
 
   useEffect(() => {
     fetch(`${API_BASE}/health`)
@@ -78,53 +78,59 @@ export default function App() {
   const tempStatus = result?.temp ? getTempStatus(result.temp) : null;
 
   return (
-    <div className="container">
-      <h1>CPU Temperature Predictor</h1>
-      <p className="subtitle">
-        Predict CPU temperature using system utilization metrics.
-      </p>
+    <div className="page">
+      <div className="container">
+        <h1>CPU Temperature Predictor</h1>
+        <p className="subtitle">
+          Enter system metrics to predict CPU temperature using Random Forest AI
+        </p>
 
-      <div className="status">
-        Backend Status: <strong>{apiStatus}</strong>
+        <div className={`status ${apiStatus.toLowerCase()}`}>
+          <span className="dot"></span>
+          API {apiStatus} — model ready
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <p className="section-label">SYSTEM METRICS</p>
+
+          <div className="grid">
+            {FIELDS.map(field => (
+              <div className="input-group" key={field.key}>
+                <label>{field.label}</label>
+                <input
+                  type="number"
+                  placeholder={field.placeholder}
+                  value={form[field.key]}
+                  onChange={(e) => handleChange(field.key, e.target.value)}
+                  required
+                />
+              </div>
+            ))}
+          </div>
+
+          <button type="submit" disabled={loading || apiStatus === "Offline"}>
+            {loading ? "Predicting..." : "Predict CPU Temperature"}
+          </button>
+        </form>
+
+        {result && (
+          <div className="result">
+            {result.error ? (
+              <p className="error">{result.error}</p>
+            ) : (
+              <>
+                <h2>
+                  Predicted Temperature:{" "}
+                  <span style={{ color: tempStatus.color }}>
+                    {result.temp} °C
+                  </span>
+                </h2>
+                <p>Status: {tempStatus.label}</p>
+              </>
+            )}
+          </div>
+        )}
       </div>
-
-      <form onSubmit={handleSubmit}>
-        <div className="grid">
-          {FIELDS.map(field => (
-            <div className="input-group" key={field.key}>
-              <label>{field.label}</label>
-              <input
-                type="number"
-                value={form[field.key]}
-                onChange={(e) => handleChange(field.key, e.target.value)}
-                required
-              />
-            </div>
-          ))}
-        </div>
-
-        <button type="submit" disabled={loading || apiStatus === "Offline"}>
-          {loading ? "Predicting..." : "Predict Temperature"}
-        </button>
-      </form>
-
-      {result && (
-        <div className="result">
-          {result.error ? (
-            <p className="error">{result.error}</p>
-          ) : (
-            <>
-              <h2>
-                Predicted Temperature:{" "}
-                <span style={{ color: tempStatus.color }}>
-                  {result.temp} °C
-                </span>
-              </h2>
-              <p>Status: {tempStatus.label}</p>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }
