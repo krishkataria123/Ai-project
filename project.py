@@ -254,8 +254,8 @@ print("Random Forest R2 Score:", r2)
 # Random Forest RMSE: 9.168695380278407
 # Random Forest R2 Score: 0.8858259822065697
 
-print("Train R2:", rf_model.score(X2_train, y2_train))
-print("Test R2:", rf_model.score(X2_test, y2_test))
+print("Train R2:", best_rf_model.score(X2_train, y2_train))
+print("Test R2:", best_rf_model.score(X2_test, y2_test))
 
 
 # ===============================
